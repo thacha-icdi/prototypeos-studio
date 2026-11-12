@@ -23,7 +23,7 @@ export default {async fetch(req,env){
    const db=neon(env.DATABASE_URL);
    const checks=await db`SELECT
      EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='prototypes' AND column_name='edit_key_hash') AS edit_key,
-     to_regclass('prototypes_client_id_global_idx') IS NOT NULL AS unique_ids,
+     EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='prototypes'::regclass AND contype='u') AS unique_ids,
      to_regclass('prototype_revisions') IS NOT NULL AS revision_history,
      EXISTS(SELECT 1 FROM pg_trigger WHERE tgname='prototypeos_project_limit' AND NOT tgisinternal) AS limit_trigger,
      EXISTS(SELECT 1 FROM pg_trigger WHERE tgname='prototypeos_no_project_delete' AND NOT tgisinternal) AS no_delete_trigger`;
@@ -53,7 +53,7 @@ export default {async fetch(req,env){
    const h=await hash(d.edit_key);
    // Shared anonymous owner is only a database foreign-key placeholder, not a user login.
    const owner=await sql`INSERT INTO app_users(external_subject,role) VALUES('prototypeos-anonymous','student') ON CONFLICT(external_subject) DO UPDATE SET external_subject=EXCLUDED.external_subject RETURNING id`;
-   const result=await sql`INSERT INTO prototypes(owner_id,client_id,kind,title,payload,edit_key_hash) VALUES(${owner[0].id},${d.client_id},${d.kind},${d.title},${JSON.stringify(d.payload)}::jsonb,${h}) ON CONFLICT(client_id) DO NOTHING RETURNING revision`;
+   const result=await sql`INSERT INTO prototypes(owner_id,client_id,kind,title,payload,edit_key_hash) VALUES(${owner[0].id},${d.client_id},${d.kind},${d.title},${JSON.stringify(d.payload)}::jsonb,${h}) ON CONFLICT(owner_id,client_id) DO NOTHING RETURNING revision`;
    return result.length?respond({revision:1},201,cors):respond({error:'Project ID already exists'},409,cors);
   }
   if(detail&&req.method==='PUT'){
