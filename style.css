@@ -128,3 +128,19 @@ body.presentation-open{overflow:hidden}
 .blueprint-buttons{display:flex;gap:9px;flex-wrap:wrap}
 .blueprint-buttons button{padding:11px 16px;border-radius:9px;font-size:12px}
 @media(max-width:600px){.blueprint-buttons{width:100%}.blueprint-buttons button{flex:1}}
+
+#physicalProductPreview[hidden],#productPrototypeStudio[hidden]{display:none!important}
+.physical-preview{padding:22px;margin:14px 0 22px}
+.physical-preview-grid{display:grid;grid-template-columns:minmax(230px,40%) 1fr;gap:25px;align-items:start;margin-top:18px}
+.physical-object{background:#f1eeff;border-radius:18px;padding:32px 20px;text-align:center;min-height:350px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.physical-lid{height:30px;width:190px;background:#2d3446;border-radius:18px 18px 5px 5px}
+.physical-jar{height:190px;width:210px;background:linear-gradient(135deg,#d6ad6b,#f6e9b6);border:7px solid #b8a079;border-radius:12px 12px 70px 70px;display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box}
+.physical-label{background:#fff9e8;border:1px solid #a58a57;border-radius:12px;padding:18px 8px;width:100%;display:flex;flex-direction:column;gap:10px;overflow-wrap:anywhere}
+.physical-label strong{font-size:16px;color:#554124}.physical-label small{font-size:9px;letter-spacing:2px;color:#967343}
+.physical-object>p{font-size:11px;color:#666078;max-width:260px;margin-top:20px}
+.physical-story{border:1px solid #e2e4ef;border-radius:16px;padding:22px}
+.physical-story h3{font-size:20px;color:#242b49}.physical-story h4{margin:18px 0 7px;color:#5544be}
+.physical-story p,.physical-story li{font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+.physical-preview-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.physical-preview-actions button{padding:11px 13px;border-radius:9px}
+@media(max-width:750px){.physical-preview-grid{grid-template-columns:1fr}.physical-object{min-height:300px}}
