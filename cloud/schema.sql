@@ -61,3 +61,9 @@ DROP TRIGGER IF EXISTS prototypeos_no_project_delete ON prototypes;
 CREATE TRIGGER prototypeos_no_project_delete
 BEFORE DELETE ON prototypes
 FOR EACH ROW EXECUTE FUNCTION prototypeos_prevent_project_delete();
+
+-- Anonymous project ownership via unguessable edit key; never store plaintext keys.
+ALTER TABLE prototypes ADD COLUMN IF NOT EXISTS edit_key_hash text;
+CREATE UNIQUE INDEX IF NOT EXISTS prototypes_client_id_global_idx ON prototypes(client_id);
+CREATE INDEX IF NOT EXISTS prototypes_recent_idx ON prototypes(updated_at DESC);
+-- The API is the only route for writes; grant no public database credentials.
