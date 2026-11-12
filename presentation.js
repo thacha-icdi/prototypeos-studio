@@ -13,15 +13,24 @@ function build(p){
  const d=p.product||{},features=(d.features||[]).filter(f=>f.name),experiments=p.experiments||[];
  const rows=features.length?features.map((f,i)=>'<div class="present-feature"><span>'+String(i+1).padStart(2,'0')+'</span><b>'+safe(f.name)+'</b></div>').join(''):'<p>เพิ่มฟีเจอร์ใน Product Blueprint เพื่อแสดงรายการ</p>';
  const ev=experiments.length?experiments.slice(0,4).map(e=>card(e.hypothesis||'Test',e.evidence||'ยังไม่มีหลักฐาน')).join(''):'<p class="present-notice">ยังไม่มีข้อมูลการทดสอบจริง กรุณาทดลองกับผู้ใช้และบันทึกผลก่อนสรุปว่าผลิตภัณฑ์ใช้งานได้ดี</p>';
- const screens='<div class="present-screens"><div><span>01</span><b>Home</b><p>หน้าหลัก</p></div><div><span>02</span><b>Browse</b><p>เลือกบริการหรือสินค้า</p></div><div><span>03</span><b>Confirm</b><p>ยืนยันรายการ</p></div><div><span>04</span><b>Success</b><p>แสดงผลลัพธ์</p></div></div>';
+ const balm=/ยาหม่อง|pain\\s*relief|balm/i.test([p.name,p.description,d.solution].join(' '));
+ const screens=balm?'<div class="present-screens"><div><span>01</span><b>กลิ่นอ่อน</b><p>ออกแบบกลิ่นที่เหมาะกับพื้นที่ทำงานร่วมกัน</p></div><div><span>02</span><b>ตลับพกพา</b><p>เปิด–ปิดง่ายและสะดวกต่อการพก</p></div><div><span>03</span><b>เนื้อบาล์ม</b><p>เกลี่ยง่ายและเหนียวน้อย</p></div><div><span>04</span><b>ประเมินผล</b><p>เก็บข้อเสนอแนะและปรับปรุงต้นแบบ</p></div></div>':'<div class="present-screens"><div><span>01</span><b>Discover</b><p>ศึกษาปัญหา</p></div><div><span>02</span><b>Design</b><p>ออกแบบแนวคิด</p></div><div><span>03</span><b>Prototype</b><p>พัฒนาต้นแบบ</p></div><div><span>04</span><b>Test</b><p>ประเมินและปรับปรุง</p></div></div>';
+ const score=f=>Number(f.effort)>0?(n(f.reach)*n(f.impact)*(n(f.confidence)/100)/n(f.effort)):0;
+ const rice=features.length?features.map(f=>'<div class="present-feature"><b>'+safe(f.name)+'</b><p>Reach '+n(f.reach)+' · Impact '+n(f.impact)+' · Confidence '+n(f.confidence)+'% · Effort '+n(f.effort)+' · RICE '+score(f).toFixed(1)+'</p></div>').join(''):'<p>ยังไม่มีรายการจัดลำดับความสำคัญ</p>';
+ const stored=window.prototypeReflection?.forProject?.(p)||window.prototypeReflection?.get?.(p.id)||{};
+ const fallback=balm?{learned:'ตัวอย่างเพื่อการศึกษา: กลิ่นอ่อน ตลับพกพา และเนื้อบาล์มที่เกลี่ยง่ายเป็นปัจจัยที่ควรนำไปทดสอบกับผู้ใช้จริง',improve:'ตัวอย่างแผน: ปรับระดับกลิ่น รูปแบบฝาตลับ ความเหนียว และตรวจสอบฉลากกับความปลอดภัย',next:'แผนทดลอง: เชิญพนักงานออฟฟิศ 5 คนประเมินความสะดวกและกลิ่น พร้อมบันทึกผลจริง'}:{learned:'ตัวอย่าง: เรียนรู้ความต้องการของผู้ใช้ผ่านการออกแบบต้นแบบ',improve:'ตัวอย่าง: ปรับต้นแบบตามข้อเสนอแนะ',next:'แผน: ทดสอบกับผู้ใช้เป้าหมายและบันทึกผลจริง'};
+ const reflect=k=>stored[k]||fallback[k];
+ const evidence=window.prototypeEvidence?.get?.(p.id)||{};
+ const testPlan=balm?card('แผนการทดสอบ','ประเมินกลิ่นอ่อน ความสะดวกในการเปิด–ปิดตลับ และความเหมาะสมของเนื้อบาล์ม โดยไม่อ้างผลทางการแพทย์')+card('ตัวชี้วัดเป้าหมาย','ผู้เข้าร่วม 5 คน; ตั้งเป้า 4 ใน 5 คนเปิด–ปิดตลับได้ภายใน 15 วินาที และคะแนนความสะดวกเฉลี่ย ≥ 4/5 (ยังไม่ได้ทดลอง)'):'';
+
  return [
  ['PRODUCT CONCEPT','เรากำลังสร้างอะไร?','<h2>'+safe(p.name)+'</h2><p class="present-lead">'+txt(p.description||d.solution)+'</p><div class="present-tag">Product Prototype · Concept Demonstration</div>'],
  ['PROBLEM & USERS','ทำไมต้องมีผลิตภัณฑ์นี้?',card('กลุ่มผู้ใช้เป้าหมาย',d.audience)+card('ปัญหาที่ต้องแก้',d.problem)+card('วิธีแก้ปัญหาที่เสนอ',d.solution)],
- ['PRODUCT DESIGN','ผลิตภัณฑ์หน้าตาอย่างไร?','<p>แผนผังหน้าจอสำหรับอธิบายแนวคิด ไม่ใช่ภาพหน้าจอของแอปที่พัฒนาเสร็จแล้ว</p>'+screens],
- ['FEATURES','ผลิตภัณฑ์ทำอะไรได้บ้าง?',rows+card('จุดเด่นที่แตกต่าง',d.value)],
- ['LIVE DEMO','กดทดลองผลิตภัณฑ์', '<div class="present-demo">📱<h2>ลองใช้งานต้นแบบ</h2><p>Home → เลือกรายการ → ตรวจสอบ → Confirm → Success</p><button id="presentDemo" class="present-action">▶ เปิดต้นแบบที่กดทดลองได้</button><p class="present-note">การทำงานเป็นการจำลอง ไม่มีการซื้อหรือจองจริง</p></div>'],
- ['TESTING & FEEDBACK','ทดลองแล้วได้ผลอย่างไร?',ev],
- ['NEXT ITERATION','ต้องพัฒนาอะไรต่อ?',card('สิ่งที่ควรตรวจสอบ','ทดสอบกับกลุ่มผู้ใช้เป้าหมาย และบันทึกข้อผิดพลาดจริง')+card('การปรับปรุง','ปรับขั้นตอนและหน้าจอตามผลการทดสอบ')+card('ข้อเสนอคุณค่า',d.value)]
+ ['PRODUCT DESIGN','ผลิตภัณฑ์หน้าตาอย่างไร?','<p>'+(balm?'แนวทางออกแบบผลิตภัณฑ์ยาหม่องต้นแบบ ไม่ใช่ผลการทดสอบจริง':'แผนพัฒนาต้นแบบจากการค้นหาปัญหาสู่การทดสอบ')+'</p>'+screens],
+ ['FEATURES','ผลิตภัณฑ์ทำอะไรได้บ้าง?',rice+card('จุดเด่นที่แตกต่าง',d.value)],
+ ['LIVE DEMO','กดทดลองผลิตภัณฑ์', '<div class="present-demo"><h2>'+(balm?'ต้นแบบยาหม่อง Pain Relief':'ลองใช้งานต้นแบบ')+'</h2><p>'+(balm?'กลิ่นอ่อน → ตลับพกพา → เนื้อบาล์ม → ประเมินการใช้งาน':'ศึกษาปัญหา → ออกแบบ → พัฒนา → ทดลอง')+'</p><button id="presentDemo" class="present-action">▶ เปิดส่วนต้นแบบใน Product Lab</button><p class="present-note">ตัวอย่างสำหรับการศึกษา ยังไม่ใช่ผลการทดลองจริง</p></div>'],
+ ['TESTING & FEEDBACK','แผนทดลองและหลักฐาน',testPlan+ev],
+ ['NEXT ITERATION','ต้องพัฒนาอะไรต่อ?',card('สิ่งที่ได้เรียนรู้',reflect('learned'))+card('สิ่งที่ต้องปรับปรุง',reflect('improve'))+card('การทดลองครั้งต่อไป',reflect('next'))]
  ];
 }
 function other(p){
