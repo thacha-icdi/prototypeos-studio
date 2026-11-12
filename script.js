@@ -71,7 +71,7 @@ try{
 }catch{}
 // Translate only matching English sample fields in the balm project; preserve user edits.
 try{
- const p=projects.find(x=>x.type==='product'&&/ยาหม่อง\\s*pain\\s*relief/i.test(x.name));
+ const p=projects.find(x=>x.type==='product'&&/ยาหม่อง\s*pain\s*relief/i.test(x.name));
  if(p&&p.product){
   const translations={"audience":["Office workers who experience neck and shoulder discomfort after long hours at a computer.","พนักงานออฟฟิศที่มีอาการไม่สบายบริเวณคอและไหล่จากการทำงานหน้าคอมพิวเตอร์เป็นเวลานาน"],"problem":["After hours at a computer, office workers often feel tension in their neck and shoulders and want something convenient to apply at their desk.","พนักงานออฟฟิศมักรู้สึกตึงบริเวณคอและไหล่หลังใช้คอมพิวเตอร์เป็นเวลานาน และต้องการผลิตภัณฑ์ที่สะดวกต่อการใช้ระหว่างทำงาน"],"solution":["A pocket-sized topical balm designed to soothe minor neck and shoulder discomfort.","พัฒนายาหม่องทาภายนอกขนาดพกพา เพื่อช่วยบรรเทาความไม่สบายเล็กน้อยบริเวณคอและไหล่"],"value":["Desk-friendly comfort in a pocket-sized balm with a mild scent, designed for use in shared workspaces.","ยาหม่องขนาดพกพาที่มีกลิ่นอ่อน ใช้งานสะดวกบนโต๊ะทำงาน และเหมาะสำหรับพื้นที่ทำงานร่วมกัน"]};
   let changed=false;
