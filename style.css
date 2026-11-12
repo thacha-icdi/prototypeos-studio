@@ -177,3 +177,11 @@ body.presentation-open{overflow:hidden}
 .cloud-project-item span{overflow-wrap:anywhere;min-width:0}
 .cloud-project-item button{flex-shrink:0}
 @media(max-width:600px){.cloud-workspace-panel{padding:14px}.cloud-project-item{align-items:flex-start;flex-direction:column}}
+
+/* Blue top workspace header */
+.topbar{background:#153a83;color:#fff;border-bottom-color:#0e2b65}
+.topbar .crumb,.topbar .crumb span,.topbar .crumb b,.topbar .author-credit,.topbar .institution-brand{color:#fff}
+.topbar .saved-indicator{color:#b8ffe1}
+.topbar .iconbtn,.topbar .menubtn{background:#ffffff;color:#153a83;border-color:#dbe6ff}
+.topbar .topnew{background:#fff;color:#153a83;border-color:#fff;box-shadow:none}
+.topbar .topnew:hover{background:#eaf1ff}
