@@ -14,6 +14,21 @@ function table(rows){return '<table class="report-table">'+rows.join('')+'</tabl
 function details(p,type){
  if(type==='product'){
  const d=p.product||{},features=d.features||[];
+ const thaiBalm={
+ audience:'พนักงานออฟฟิศที่มีอาการไม่สบายบริเวณคอและไหล่จากการทำงานหน้าคอมพิวเตอร์เป็นเวลานาน',
+ problem:'พนักงานออฟฟิศมักรู้สึกตึงบริเวณคอและไหล่หลังใช้คอมพิวเตอร์เป็นเวลานาน และต้องการผลิตภัณฑ์ที่สะดวกต่อการใช้ระหว่างทำงาน',
+ solution:'พัฒนายาหม่องทาภายนอกขนาดพกพา เพื่อช่วยบรรเทาความไม่สบายเล็กน้อยบริเวณคอและไหล่',
+ value:'ยาหม่องขนาดพกพาที่มีกลิ่นอ่อน ใช้งานสะดวกบนโต๊ะทำงาน และเหมาะสำหรับพื้นที่ทำงานร่วมกัน'
+ };
+ const englishSamples={
+ audience:'Office workers who experience neck and shoulder discomfort after long hours at a computer.',
+ problem:'After hours at a computer, office workers often feel tension in their neck and shoulders and want something convenient to apply at their desk.',
+ solution:'A pocket-sized topical balm designed to soothe minor neck and shoulder discomfort.',
+ value:'Desk-friendly comfort in a pocket-sized balm with a mild scent, designed for use in shared workspaces.'
+ };
+ const isBalm=/ยาหม่อง|pain\s*relief|balm/i.test([p.name,p.description].join(' '));
+ const reportField=k=>isBalm&&String(d[k]||'').trim()===englishSamples[k]?thaiBalm[k]:d[k];
+
  const physical=/balm|herbal|ยาหม่อง|สมุนไพร|packaging|บรรจุภัณฑ์|cosmetic|สบู่|อาหาร|ครีม|ผลิตภัณฑ์ทางกายภาพ/i.test([p.name,p.description,d.solution,...features.map(f=>f.name)].join(' '));
  const explainFeature=(name)=>{
  const n=String(name||'').toLowerCase();
@@ -40,7 +55,7 @@ function details(p,type){
  const featureRows=features.length?'<table class="report-table report-feature-table"><thead><tr><th style="width:24%">ขั้นตอน</th><th>ต้องทำอะไร?</th><th>ต้องแสดงผลงานอะไร?</th></tr></thead><tbody>'+features.map((f,i)=>{const ex=explainFeature(f.name);return '<tr><td><strong>'+(i+1)+'. '+escapeHtml(f.name)+'</strong></td><td>'+escapeHtml(ex[0])+'</td><td>'+escapeHtml(ex[1])+'</td></tr>';}).join('')+'</tbody></table><p class="muted">รายการข้างต้นเป็นแนวทางดำเนินงาน ไม่ใช่หลักฐานว่าทำเสร็จแล้ว กรุณาแนบผลการพัฒนาและการทดสอบจริงก่อนส่งงาน</p>':'<p class="report-pending">ยังไม่ได้กำหนดขั้นตอนการพัฒนาต้นแบบ</p>';
  const concept='<section class="report-hero"><div class="report-hero-kicker">PRODUCT PROTOTYPE · '+(physical?'PHYSICAL PRODUCT':'DIGITAL PRODUCT')+'</div><h3>'+escapeHtml(p.name)+'</h3><p>'+lines(d.value||d.solution)+'</p></section>';
  const visual=physical?'<div class="report-physical"><div class="report-jar"><div class="report-jar-lid"></div><div class="report-jar-body"><strong>'+escapeHtml(p.name)+'</strong><small>CONCEPT MOCKUP</small></div></div><div class="report-visual-copy"><strong>ภาพแนวคิดผลิตภัณฑ์ (Conceptual mockup)</strong><p>ภาพจำลองบรรจุภัณฑ์เพื่อการนำเสนอเท่านั้น ไม่ใช่ภาพผลิตภัณฑ์จริง และไม่ยืนยันสูตร ส่วนประกอบ คุณภาพ หรือความปลอดภัย</p><p>ขั้นต่อไป: แนบภาพต้นแบบจริง / ภาพฉลาก / ภาพบรรจุภัณฑ์ และระบุขนาด วัสดุ และวิธีใช้</p></div></div>':'<div class="report-digital"><div class="report-device"><strong>'+escapeHtml(p.name)+'</strong><hr><p>Home</p><p>Browse</p><p>Details</p><p>Confirm</p></div><p>ตัวอย่างลำดับหน้าจอ (conceptual wireframe) ไม่ใช่หน้าจอจริงของโครงการ กรุณาแสดงต้นแบบที่พัฒนาขึ้นและทดสอบได้</p></div>';
- return concept+'<h2>1. แนวคิดและปัญหาที่ต้องการแก้ไข</h2>'+table([row('กลุ่มผู้ใช้เป้าหมาย',d.audience),row('ปัญหาของผู้ใช้',d.problem),row('แนวทางแก้ปัญหา',d.solution),row('คุณค่าที่แตกต่าง',d.value)])+'<h2>2. ภาพต้นแบบผลิตภัณฑ์</h2>'+visual+featureSummary+'<h2>4. แผนการพัฒนาต้นแบบและสิ่งส่งมอบ</h2>'+featureRows+'<h2>5. วิธีสาธิตและการทดลอง</h2>'+(physical?'<p>นำเสนอตัวอย่างบรรจุภัณฑ์และฉลาก อธิบายวัสดุ รูปทรง วิธีใช้งานที่เสนอ และการทดสอบความปลอดภัยที่จำเป็น โดยไม่อ้างผลการทดสอบที่ยังไม่มี</p>':'<p>สาธิตหน้าจอและเส้นทางใช้งานของผลิตภัณฑ์จริงตั้งแต่เริ่มจนจบ พร้อมบันทึกข้อผิดพลาดและความคิดเห็นของผู้ทดลอง</p>')+(window.prototypeEvidence?.get(p.id)?.image?'<p>ภาพต้นแบบที่แนบไว้แสดงในหัวข้อผลการทดลองด้านล่าง</p>':'<p class="report-pending">ยังไม่มีภาพต้นแบบจริงแนบกับรายงานฉบับนี้</p>')
+ return concept+'<h2>1. แนวคิดและปัญหาที่ต้องการแก้ไข</h2>'+table([row('กลุ่มผู้ใช้เป้าหมาย',reportField('audience')),row('ปัญหาของผู้ใช้',reportField('problem')),row('แนวทางแก้ปัญหา',reportField('solution')),row('คุณค่าที่แตกต่าง',reportField('value'))])+'<h2>2. ภาพต้นแบบผลิตภัณฑ์</h2>'+visual+featureSummary+'<h2>4. แผนการพัฒนาต้นแบบและสิ่งส่งมอบ</h2>'+featureRows+'<h2>5. วิธีสาธิตและการทดลอง</h2>'+(physical?'<p>นำเสนอตัวอย่างบรรจุภัณฑ์และฉลาก อธิบายวัสดุ รูปทรง วิธีใช้งานที่เสนอ และการทดสอบความปลอดภัยที่จำเป็น โดยไม่อ้างผลการทดสอบที่ยังไม่มี</p>':'<p>สาธิตหน้าจอและเส้นทางใช้งานของผลิตภัณฑ์จริงตั้งแต่เริ่มจนจบ พร้อมบันทึกข้อผิดพลาดและความคิดเห็นของผู้ทดลอง</p>')+(window.prototypeEvidence?.get(p.id)?.image?'<p>ภาพต้นแบบที่แนบไว้แสดงในหัวข้อผลการทดลองด้านล่าง</p>':'<p class="report-pending">ยังไม่มีภาพต้นแบบจริงแนบกับรายงานฉบับนี้</p>')
  }
  if(type==='process'){
  const d=p.process||{},steps=d.steps||[],before=steps.reduce((s,x)=>s+val(x.beforeTime),0),after=steps.reduce((s,x)=>s+val(x.afterTime),0);
