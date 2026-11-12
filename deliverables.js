@@ -67,7 +67,7 @@ function install(){
  for(const type of types){
  const page=$r(type),bar=page?.querySelector('.workingbar');if(!bar||bar.querySelector('.deliverable-tools'))continue;
  const panel=document.createElement('div');panel.className='deliverable-tools';panel.innerHTML='<span class="deliverable-label">เมื่อทำงานเสร็จ / Finish your work</span><button type="button" class="primary" data-action="save">💾 Save</button><button type="button" class="outlinebtn" data-action="backup">⬇ Backup</button><button type="button" class="outlinebtn" data-action="print">🖨 Print</button><button type="button" class="outlinebtn" data-action="pdf">📄 Export PDF</button><button type="button" class="outlinebtn" data-action="clear">↺ Clear</button><small class="deliverable-hint">Save = บันทึกในเครื่องนี้ · Backup = ดาวน์โหลดไฟล์ JSON · PDF = เลือก Save as PDF ในหน้าพิมพ์</small>';
- bar.insertAdjacentElement('afterend',panel);
+ if(type==='product' && bar.nextElementSibling?.matches('.advanced-planning')){bar.nextElementSibling.insertAdjacentElement('afterend',panel);}else{bar.insertAdjacentElement('afterend',panel);}
  panel.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;switch(b.dataset.action){case 'save':if(!get(type)){toast('กรุณาสร้างโครงการก่อน');return;}if(persist())toast('บันทึกในเบราว์เซอร์นี้แล้ว · แนะนำ Backup ด้วย');break;case 'backup':backup(type);break;case 'print':openReport(type,true);break;case 'pdf':openReport(type,false);break;case 'clear':clear(type);break;}});
  }
 }
