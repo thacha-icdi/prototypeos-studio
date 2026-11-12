@@ -120,3 +120,11 @@ body.presentation-open{overflow:hidden}
 #presentDots button{width:9px;height:9px;border:0;border-radius:50%;padding:0;background:#657090}
 #presentDots button.selected{background:#a99aff;transform:scale(1.4)}
 @media(max-width:700px){#presentOverlay{padding:5px}.present-shell>header{flex-wrap:wrap}.present-slide{padding:22px}.present-card{display:block;width:100%}.present-screens{grid-template-columns:repeat(2,1fr)}.present-screens>div{min-height:110px}}
+
+.blueprint-edit-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:20px;padding:16px;border:1px solid #dcdaf5;border-radius:12px;background:#f8f7ff}
+.blueprint-edit-actions>div:first-child{display:flex;flex-direction:column;gap:5px}
+.blueprint-edit-actions strong{font-size:13px;color:#25264c}
+.blueprint-edit-actions small{font-size:11px;color:#6d7391}
+.blueprint-buttons{display:flex;gap:9px;flex-wrap:wrap}
+.blueprint-buttons button{padding:11px 16px;border-radius:9px;font-size:12px}
+@media(max-width:600px){.blueprint-buttons{width:100%}.blueprint-buttons button{flex:1}}
