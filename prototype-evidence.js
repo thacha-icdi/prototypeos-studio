@@ -14,7 +14,7 @@ function install(){
  anchor.insertAdjacentElement('beforebegin',panel);
  const mockupSlot=$('productMockupUpload');
  const imageWidget=panel.querySelector('.evidence-image');
- if(mockupSlot&&imageWidget){mockupSlot.appendChild(imageWidget);imageWidget.querySelector('label').firstChild.textContent='Upload Product Mockup / อัปโหลดภาพต้นแบบผลิตภัณฑ์';}
+ if(mockupSlot&&imageWidget){mockupSlot.appendChild(imageWidget);imageWidget.querySelector('label').firstChild.textContent='Upload Product Mockup / อัปโหลดภาพต้นแบบผลิตภัณฑ์';const saveImage=document.createElement('button');saveImage.type='button';saveImage.className='primary';saveImage.textContent='💾 Save image / บันทึกรูปภาพ';saveImage.addEventListener('click',()=>save());imageWidget.appendChild(saveImage);}
 
  const balmPlan={
   method:'ทดสอบความสะดวกในการใช้งานยาหม่อง Pain Relief สำหรับพนักงานออฟฟิศ โดยประเมินการเปิด–ปิดตลับ การพกพา ความสะดวกในการทา และความเหมาะสมของกลิ่นอ่อนในพื้นที่ทำงานร่วมกัน (ไม่ใช่การทดสอบประสิทธิผลทางการแพทย์)',
