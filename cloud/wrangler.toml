@@ -1,0 +1,7 @@
+name = "prototypeos-cloud-api"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+# Set DATABASE_URL using: npx wrangler secret put DATABASE_URL
+# Configure OIDC_ISSUER and OIDC_AUDIENCE after choosing an authentication provider.
+[vars]
+ALLOWED_ORIGIN = "https://thacha-icdi.github.io"
