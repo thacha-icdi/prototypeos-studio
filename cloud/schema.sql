@@ -64,7 +64,9 @@ FOR EACH ROW EXECUTE FUNCTION prototypeos_prevent_project_delete();
 
 -- Anonymous project ownership via unguessable edit key; never store plaintext keys.
 ALTER TABLE prototypes ADD COLUMN IF NOT EXISTS edit_key_hash text;
-CREATE UNIQUE INDEX IF NOT EXISTS prototypes_client_id_global_idx ON prototypes(client_id);
+-- Keep the existing UNIQUE(owner_id, client_id) constraint for legacy user isolation.
+-- A global client_id index would break older data with shared IDs across owners.
+DROP INDEX IF EXISTS prototypes_client_id_global_idx;
 CREATE INDEX IF NOT EXISTS prototypes_recent_idx ON prototypes(updated_at DESC);
 -- The API is the only route for writes; grant no public database credentials.
 
