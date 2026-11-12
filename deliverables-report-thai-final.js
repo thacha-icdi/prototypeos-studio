@@ -75,7 +75,7 @@ function details(p,type){
 }
 function report(p,type){
  const name=escapeHtml(p.name),experiments=p.experiments||[];
- const reflection=window.prototypeReflection?.forProject?.(p)||window.prototypeReflection?.get(p.id)||{};
+ const reflection=window.prototypeReflection?.get(p.id)||{};
 
  const savedEvidence=type==='product'?(window.prototypeEvidence?.get(p.id)||{}):{};
  const evidence=savedEvidence;
