@@ -31,3 +31,33 @@ CREATE TABLE IF NOT EXISTS prototype_evidence (
 );
 -- Do not expose Neon connection credentials to GitHub Pages.
 -- All data access must pass through an authenticated backend which verifies ownership.
+
+-- Global hard cap. Serialized inserts prevent concurrent requests exceeding 2,000.
+-- Existing records are never deleted automatically.
+CREATE OR REPLACE FUNCTION prototypeos_enforce_project_limit()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  PERFORM pg_advisory_xact_lock(2040, 2000);
+  IF (SELECT count(*) FROM prototypes) >= 2000 THEN
+    RAISE EXCEPTION 'PrototypeOS project capacity reached (2000)'
+      USING ERRCODE = 'P2000';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+DROP TRIGGER IF EXISTS prototypeos_project_limit ON prototypes;
+CREATE TRIGGER prototypeos_project_limit
+BEFORE INSERT ON prototypes
+FOR EACH ROW EXECUTE FUNCTION prototypeos_enforce_project_limit();
+
+-- Prevent accidental or intentional project deletion, including cascading deletes.
+CREATE OR REPLACE FUNCTION prototypeos_prevent_project_delete()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  RAISE EXCEPTION 'Project deletion is disabled';
+END;
+$$;
+DROP TRIGGER IF EXISTS prototypeos_no_project_delete ON prototypes;
+CREATE TRIGGER prototypeos_no_project_delete
+BEFORE DELETE ON prototypes
+FOR EACH ROW EXECUTE FUNCTION prototypeos_prevent_project_delete();
