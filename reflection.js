@@ -10,7 +10,6 @@ const sample={
 const get=id=>{try{return JSON.parse(localStorage.getItem(key(id))||'{}')}catch{return {}}};
 function forProject(p){const saved=p?get(p.id):{};if(p?.type==='product'&&p.name==='ยาหม่อง pain relief'){const merged={...saved};for(const [k,v] of Object.entries(sample))if(!merged[k])merged[k]=v;return merged;}return saved;}
 window.prototypeReflection={get,forProject};
-window.prototypeReflection={get};
 function install(){
  const product=document.getElementById('product');if(!product)return;
  const section=document.createElement('section');section.className='panel reflection-panel';
