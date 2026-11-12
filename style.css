@@ -64,3 +64,10 @@
 .proto-journey-step.reached{background:#f0edff;color:#5749ce;font-weight:700}.proto-journey-step.reached span{background:#6857e8;color:white}
 .proto-test{padding:20px;border:1px solid var(--line);border-radius:14px}.proto-rating{display:flex;flex-direction:column;gap:8px;margin:15px 0;font-size:12px}.proto-history{font-size:11px;color:#69748b;line-height:1.6}.proto-history p{padding:8px;border-bottom:1px solid var(--line)}
 @media(max-width:850px){.proto-workspace{grid-template-columns:1fr}.prototype-studio{padding:15px}}
+
+/* Make the actual prototype obvious before planning forms */
+.prototype-quickstart{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:17px 20px;margin:0 0 18px;border:1px solid #cfc9ff;background:#f1efff;border-radius:14px;color:#302a68}
+.prototype-quickstart strong{font-size:14px}.prototype-quickstart span{font-size:12px;flex:1;min-width:190px}
+.prototype-quickstart a{display:inline-block;background:#6857e8;color:white;text-decoration:none;border-radius:9px;padding:11px 15px;font-size:12px;font-weight:700}
+#productPrototypeStudio{scroll-margin-top:130px}
+#protoScreen button:focus-visible,.proto-controls button:focus-visible{outline:3px solid #9a8aff;outline-offset:3px}
