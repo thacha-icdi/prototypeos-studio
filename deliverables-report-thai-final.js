@@ -91,7 +91,7 @@ function report(p,type){
   for(const k of Object.keys(examples))if(!String(reflection[k]||'').trim())reflection[k]=isBalm?examples[k]:generic[k];
  }
  const savedEvidence=type==='product'?(window.prototypeEvidence?.get(p.id)||{}):{};
- const balm=/ยาหม่อง|pain\s*relief|balm/i.test(String(p.name||''));
+ const balm=/ยาหม่อง|pain\\s*relief|balm|ตลับ|กลิ่นอ่อน|ออฟฟิศ/i.test([p.name,p.description,p.product?.audience,p.product?.problem,p.product?.solution,p.product?.value,...(p.product?.features||[]).map(x=>x.name)].join(' '));
  const samplePlan={
  method:'แผนตัวอย่าง (ยังไม่ได้ทดลอง): ประเมินความสะดวกในการเปิด–ปิดตลับยาหม่อง การพกพา และความเหมาะสมของกลิ่นอ่อนในพื้นที่ทำงาน',
  materials:'ตลับยาหม่องต้นแบบ ฉลากส่วนผสม แบบประเมิน 1–5 คะแนน และนาฬิกาจับเวลา',
