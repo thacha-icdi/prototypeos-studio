@@ -36,12 +36,12 @@ export default {async fetch(req,env){
  const sql=neon(env.DATABASE_URL);
  try{
   if(path==='/api/prototypes'&&req.method==='GET'){
-   const rows=await sql`SELECT client_id,kind,title,revision,updated_at FROM prototypes ORDER BY updated_at DESC LIMIT 2000`;
+   const rows=await sql`SELECT client_id,kind,title,revision,updated_at FROM prototypes WHERE owner_id=(SELECT id FROM app_users WHERE external_subject='prototypeos-anonymous') ORDER BY updated_at DESC LIMIT 2000`;
    return respond({projects:rows,count:rows.length,limit:2000},200,cors);
   }
   const detail=path.match(/^\/api\/prototypes\/([a-zA-Z0-9_-]{1,150})$/);
   if(detail&&req.method==='GET'){
-   const rows=await sql`SELECT client_id,kind,title,payload,revision,updated_at FROM prototypes WHERE client_id=${detail[1]} LIMIT 1`;
+   const rows=await sql`SELECT client_id,kind,title,payload,revision,updated_at FROM prototypes WHERE client_id=${detail[1]} AND owner_id=(SELECT id FROM app_users WHERE external_subject='prototypeos-anonymous') LIMIT 1`;
    return rows.length?respond({project:rows[0]},200,cors):respond({error:'Not found'},404,cors);
   }
   if(path==='/api/prototypes'&&req.method==='POST'){
@@ -62,7 +62,7 @@ export default {async fetch(req,env){
    let d;try{d=JSON.parse(raw)}catch{return respond({error:'Invalid JSON'},400,cors)}
    if(!d||typeof d.title!=='string'||!d.title.trim()||d.title.length>100||!['product','process','business'].includes(d.kind)||!d.payload||typeof d.payload!=='object'||Array.isArray(d.payload)||!Number.isSafeInteger(d.expected_revision)||d.expected_revision<1)return respond({error:'Invalid update'},400,cors);
    const h=await hash(key);
-   const rows=await sql`UPDATE prototypes SET title=${d.title},kind=${d.kind},payload=${JSON.stringify(d.payload)}::jsonb,revision=revision+1,updated_at=now() WHERE client_id=${detail[1]} AND edit_key_hash=${h} AND revision=${d.expected_revision} RETURNING revision`;
+   const rows=await sql`UPDATE prototypes SET title=${d.title},kind=${d.kind},payload=${JSON.stringify(d.payload)}::jsonb,revision=revision+1,updated_at=now() WHERE client_id=${detail[1]} AND owner_id=(SELECT id FROM app_users WHERE external_subject='prototypeos-anonymous') AND edit_key_hash=${h} AND revision=${d.expected_revision} RETURNING revision`;
    return rows.length?respond({revision:rows[0].revision},200,cors):respond({error:'Invalid key or version conflict'},409,cors);
   }
   return respond({error:'Not found'},404,cors);
