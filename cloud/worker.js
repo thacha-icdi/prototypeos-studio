@@ -17,7 +17,21 @@ export default {async fetch(req,env){
  if(req.method==='OPTIONS')return allowed?new Response(null,{status:204,headers:{...cors,'Access-Control-Allow-Headers':'Content-Type, X-Prototype-Key','Access-Control-Allow-Methods':'GET,POST,PUT,OPTIONS'}}):respond({error:'Forbidden origin'},403);
  if(origin&&!allowed)return respond({error:'Forbidden origin'},403);
  const path=new URL(req.url).pathname;
- if(path==='/health')return respond({status:'configuration-required',cloudSaveEnabled:!!(env.DATABASE_URL&&env.TURNSTILE_SECRET)},200,cors);
+ if(path==='/health'){
+  if(!env.DATABASE_URL||!env.TURNSTILE_SECRET)return respond({status:'configuration-required',cloudSaveEnabled:false},200,cors);
+  try{
+   const db=neon(env.DATABASE_URL);
+   const checks=await db`SELECT
+     EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='prototypes' AND column_name='edit_key_hash') AS edit_key,
+     to_regclass('prototypes_client_id_global_idx') IS NOT NULL AS unique_ids,
+     to_regclass('prototype_revisions') IS NOT NULL AS revision_history,
+     EXISTS(SELECT 1 FROM pg_trigger WHERE tgname='prototypeos_project_limit' AND NOT tgisinternal) AS limit_trigger,
+     EXISTS(SELECT 1 FROM pg_trigger WHERE tgname='prototypeos_no_project_delete' AND NOT tgisinternal) AS no_delete_trigger`;
+   const c=checks[0]||{};
+   const ready=Boolean(c.edit_key&&c.unique_ids&&c.revision_history&&c.limit_trigger&&c.no_delete_trigger);
+   return respond({status:ready?'ready':'database-migration-needed',cloudSaveEnabled:ready},200,cors);
+  }catch{return respond({status:'database-unavailable',cloudSaveEnabled:false},503,cors)}
+ }
  if(!env.DATABASE_URL)return respond({error:'Database not configured'},503,cors);
  const sql=neon(env.DATABASE_URL);
  try{
