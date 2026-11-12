@@ -185,3 +185,10 @@ body.presentation-open{overflow:hidden}
 .topbar .iconbtn,.topbar .menubtn{background:#ffffff;color:#153a83;border-color:#dbe6ff}
 .topbar .topnew{background:#fff;color:#153a83;border-color:#fff;box-shadow:none}
 .topbar .topnew:hover{background:#eaf1ff}
+
+/* Larger, readable workspace header typography */
+.topbar .crumb{font-size:16px;font-weight:650}
+.topbar .author-credit{font-size:13px;font-weight:600}
+.topbar .institution-brand{font-size:17px;font-weight:750;max-width:48%}
+@media(max-width:1250px){.topbar .institution-brand{font-size:15px}}
+@media(max-width:850px){.topbar .institution-brand{font-size:13px;max-width:40%}}
