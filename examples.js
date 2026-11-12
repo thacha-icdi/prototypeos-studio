@@ -3,15 +3,20 @@
 (() => {
 const examples = {
 product: () => {
- const p=makeProject('SmartCampus AI — Product Demo','product','DEMO DATA · AI-assisted university student services');
- p.product={audience:'University students, lecturers and administrative staff',problem:'Students navigate fragmented service channels, experience long waits and struggle to find accurate information.',solution:'Mobile-first student services portal with AI guidance, appointment scheduling and request tracking.',value:'One accessible place for faster, personalized campus services.',checklist:[true,true,false,false],features:[
- {name:'AI Student Assistant',reach:800,impact:3,confidence:90,effort:5},
- {name:'Appointment Booking',reach:600,impact:2,confidence:90,effort:4},
- {name:'Request Tracking',reach:500,impact:2,confidence:85,effort:4},
- {name:'Smart Notifications',reach:700,impact:1,confidence:80,effort:3},
- {name:'Personalized Dashboard',reach:400,impact:2,confidence:75,effort:5}
- ].map(x=>({id:uid(),...x}))};
- p.experiments=[{id:uid(),hypothesis:'At least 70% of 30 students can complete routine service requests without staff assistance.',metric:'Task completion ≥ 70%; satisfaction ≥ 4/5',outcome:'pending',evidence:'DEMO PLAN ONLY: recruit 30 students; test five tasks; record task completion and satisfaction.',createdAt:new Date().toISOString()}];
+ const p=makeProject('ยาหม่อง pain relief — Product Demo','product','ข้อมูลตัวอย่างเพื่อการศึกษา / Educational sample · ยาหม่องสำหรับพนักงานออฟฟิศ');
+ p.product={
+ audience:'พนักงานออฟฟิศที่มีอาการไม่สบายบริเวณคอและไหล่จากการทำงานหน้าคอมพิวเตอร์เป็นเวลานาน',
+ problem:'พนักงานออฟฟิศมักรู้สึกตึงบริเวณคอและไหล่หลังใช้คอมพิวเตอร์เป็นเวลานาน และต้องการผลิตภัณฑ์ที่สะดวกต่อการใช้ระหว่างทำงาน',
+ solution:'พัฒนายาหม่องทาภายนอกขนาดพกพา เพื่อช่วยบรรเทาความไม่สบายเล็กน้อยบริเวณคอและไหล่',
+ value:'ยาหม่องขนาดพกพาที่มีกลิ่นอ่อน ใช้งานสะดวกบนโต๊ะทำงาน และเหมาะสำหรับพื้นที่ทำงานร่วมกัน',
+ checklist:[false,false,false,false],
+ features:[
+ {name:'ทดลองกลิ่นอ่อนสำหรับใช้ในออฟฟิศ',reach:100,impact:2,confidence:80,effort:1},
+ {name:'ออกแบบตลับขนาดพกพา เปิดและปิดง่าย',reach:100,impact:1,confidence:80,effort:1},
+ {name:'ทดลองเนื้อบาล์มที่เกลี่ยง่ายและเหนียวน้อย',reach:100,impact:2,confidence:70,effort:2}
+ ].map(x=>({id:uid(),...x}))
+ };
+ p.experiments=[{id:uid(),hypothesis:'ตัวอย่างสมมติ: ผู้ใช้เป้าหมายส่วนใหญ่ให้คะแนนความสะดวกในการพกพาและเปิดตลับอย่างน้อย 4 จาก 5 คะแนน',metric:'คะแนนความสะดวกเฉลี่ย ≥ 4/5; ระยะเวลาเปิด–ปิดตลับ',outcome:'pending',evidence:'แผนการทดลองเท่านั้น: เชิญพนักงานออฟฟิศ 5 คนประเมินต้นแบบและบันทึกผลจริงหลังตรวจสอบความปลอดภัย',createdAt:new Date().toISOString()}];
  return p;
 },
 process: () => {
@@ -37,7 +42,7 @@ function load(type){
 function install(){
  const target=document.querySelector('.topactions');
  if(!target||document.getElementById('examplePicker'))return;
- const wrap=document.createElement('div');wrap.className='example-picker';wrap.innerHTML='<label for="examplePicker" class="sr-only">Load example project</label><select id="examplePicker" aria-label="Load a sample prototype"><option value="">✦ Load example</option><option value="product">Product · SmartCampus AI</option><option value="process">Process · Student Workflow</option><option value="business">Business · SmartCampus SaaS</option><option value="all">Load all three examples</option></select>';
+ const wrap=document.createElement('div');wrap.className='example-picker';wrap.innerHTML='<label for="examplePicker" class="sr-only">Load example project</label><select id="examplePicker" aria-label="Load a sample prototype"><option value="">✦ Load example / โหลดตัวอย่าง</option><option value="product">Product · ยาหม่อง pain relief</option><option value="process">Process · Student Workflow</option><option value="business">Business · SmartCampus SaaS</option><option value="all">Load all three examples</option></select>';
  target.insertBefore(wrap,target.querySelector('#topNew'));
  wrap.querySelector('select').addEventListener('change',e=>{
  const type=e.target.value;e.target.value='';if(!type)return;
