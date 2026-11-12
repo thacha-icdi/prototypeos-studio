@@ -156,3 +156,12 @@ body.presentation-open{overflow:hidden}
 
 /* Homepage entry QR code */
 .homepage-qr{display:flex;align-items:center;gap:14px;width:max-content;max-width:100%;padding:12px 16px;margin:0 0 20px;border:1px solid #dedcf7;background:#fff;border-radius:15px;box-shadow:0 5px 22px rgba(37,39,86,.05)}.homepage-qr-image{display:block;flex-shrink:0;padding:5px;background:#fff;border:1px solid #ececf5;border-radius:10px}.homepage-qr-image img{display:block;width:100px;height:100px;object-fit:contain}.homepage-qr>div{display:flex;flex-direction:column;gap:7px;min-width:0}.homepage-qr strong{font-size:14px;color:#192443}.homepage-qr span{font-size:11px;color:#737b97}.homepage-qr div a{font-size:12px;color:#6353e8;font-weight:700;overflow-wrap:anywhere}@media(max-width:480px){.homepage-qr{width:100%;box-sizing:border-box}.homepage-qr-image img{width:85px;height:85px}}
+
+/* Non-destructive import for local backup files */
+.backup-restore-panel{margin:15px 0 22px;padding:16px 18px;border-radius:13px;border:1px solid #d9d5ff;background:#f7f5ff;display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.backup-restore-panel>div{flex:1;min-width:220px}
+.backup-restore-panel strong{font-size:13px;color:#30305e}
+.backup-restore-panel p{font-size:12px;line-height:1.5;margin:5px 0 0;color:#68708b}
+.backup-restore-panel button{padding:11px 14px;border-radius:9px;white-space:nowrap}
+.backup-restore-panel #restoreStatus{flex-basis:100%;font-size:12px;color:#3b5d6b}
+@media(max-width:560px){.backup-restore-panel>div{min-width:100%}.backup-restore-panel button{width:100%}}
