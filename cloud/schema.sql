@@ -67,3 +67,38 @@ ALTER TABLE prototypes ADD COLUMN IF NOT EXISTS edit_key_hash text;
 CREATE UNIQUE INDEX IF NOT EXISTS prototypes_client_id_global_idx ON prototypes(client_id);
 CREATE INDEX IF NOT EXISTS prototypes_recent_idx ON prototypes(updated_at DESC);
 -- The API is the only route for writes; grant no public database credentials.
+
+-- Append-only history: preserve the previous revision whenever a project changes.
+-- Existing projects are retained; this migration does not truncate or delete data.
+CREATE TABLE IF NOT EXISTS prototype_revisions (
+ prototype_id uuid NOT NULL REFERENCES prototypes(id) ON DELETE RESTRICT,
+ revision bigint NOT NULL,
+ title text NOT NULL,
+ kind text NOT NULL,
+ payload jsonb NOT NULL,
+ recorded_at timestamptz NOT NULL DEFAULT now(),
+ PRIMARY KEY(prototype_id, revision)
+);
+CREATE OR REPLACE FUNCTION prototypeos_archive_before_update()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ INSERT INTO prototype_revisions(prototype_id,revision,title,kind,payload)
+ VALUES(OLD.id,OLD.revision,OLD.title,OLD.kind,OLD.payload)
+ ON CONFLICT(prototype_id,revision) DO NOTHING;
+ RETURN NEW;
+END;
+$$;
+DROP TRIGGER IF EXISTS prototypeos_keep_old_revisions ON prototypes;
+CREATE TRIGGER prototypeos_keep_old_revisions
+BEFORE UPDATE ON prototypes
+FOR EACH ROW WHEN (
+ OLD.revision IS DISTINCT FROM NEW.revision OR
+ OLD.payload IS DISTINCT FROM NEW.payload OR
+ OLD.title IS DISTINCT FROM NEW.title OR
+ OLD.kind IS DISTINCT FROM NEW.kind
+)
+EXECUTE FUNCTION prototypeos_archive_before_update();
+DROP TRIGGER IF EXISTS prototypeos_no_revision_delete ON prototype_revisions;
+CREATE TRIGGER prototypeos_no_revision_delete
+BEFORE DELETE ON prototype_revisions
+FOR EACH ROW EXECUTE FUNCTION prototypeos_prevent_project_delete();
