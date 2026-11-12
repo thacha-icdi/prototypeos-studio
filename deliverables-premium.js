@@ -40,13 +40,19 @@ function details(p,type){
 function report(p,type){
  const name=escapeHtml(p.name),experiments=p.experiments||[];
  const reflection=window.prototypeReflection?.forProject?.(p)||window.prototypeReflection?.get(p.id)||{};
- if(type==='product'&&/ยาหม่อง\s*pain\s*relief/i.test(p.name)){
+ if(type==='product'){
   const examples={
    learned:'ตัวอย่างเพื่อการศึกษา (ยังไม่ใช่ผลทดลองจริง): ผลิตภัณฑ์ยาหม่องสำหรับพนักงานออฟฟิศควรออกแบบให้กลิ่นอ่อน ตลับพกพาเปิด–ปิดง่าย และเนื้อบาล์มเกลี่ยสะดวก ต้องทดลองกับผู้ใช้จริงก่อนสรุปผล',
    improve:'ตัวอย่างแนวทางปรับปรุง: ปรับระดับกลิ่นให้เหมาะกับพื้นที่ทำงานร่วมกัน ออกแบบฝาตลับให้จับถนัดมือ ลดความเหนียวของเนื้อบาล์ม และตรวจสอบฉลากกับความปลอดภัยก่อนใช้งานจริง',
    next:'แผนทดลอง (ยังไม่ได้ดำเนินการ): ให้พนักงานออฟฟิศ 5 คนประเมินตลับและกลิ่น วัดเวลาเปิด–ปิดตลับ โดยตั้งเป้าอย่างน้อย 4 ใน 5 คนทำได้ภายใน 15 วินาที และคะแนนความสะดวกเฉลี่ยอย่างน้อย 4/5 พร้อมบันทึกหลักฐานจริง'
   };
-  for(const k of Object.keys(examples))if(!reflection[k])reflection[k]=examples[k];
+  const isBalm=/ยาหม่อง|pain\s*relief|balm/i.test([p.name,p.description,p.product?.solution].join(' '));
+  const generic={
+   learned:'ตัวอย่างสำหรับนักศึกษา (ยังไม่ใช่ผลทดลองจริง): ได้เรียนรู้ว่าการออกแบบต้นแบบควรเริ่มจากปัญหาของกลุ่มเป้าหมาย และประเมินความสะดวกในการใช้งานด้วยตัวชี้วัดที่ตรวจสอบได้',
+   improve:'ตัวอย่างแนวทางปรับปรุง: ปรับการออกแบบตามข้อเสนอแนะของผู้ใช้ ตรวจสอบความเหมาะสมของวัสดุและการใช้งาน และเตรียมหลักฐานจากการทดสอบจริง',
+   next:'แผนทดลอง (ยังไม่ได้ดำเนินการ): ทดสอบต้นแบบกับผู้ใช้เป้าหมายอย่างน้อย 5 คน บันทึกเวลาการทำงาน คะแนนความพึงพอใจ และปัญหาที่พบ ก่อนนำผลมาปรับปรุงต้นแบบ'
+  };
+  for(const k of Object.keys(examples))if(!String(reflection[k]||'').trim())reflection[k]=isBalm?examples[k]:generic[k];
  }
  const evidence=type==='product'?(window.prototypeEvidence?.get(p.id)||{}):{};
  const safeImage=typeof evidence.image==='string'&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(evidence.image)?evidence.image:'';
