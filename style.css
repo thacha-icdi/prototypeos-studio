@@ -71,3 +71,12 @@
 .prototype-quickstart a{display:inline-block;background:#6857e8;color:white;text-decoration:none;border-radius:9px;padding:11px 15px;font-size:12px;font-weight:700}
 #productPrototypeStudio{scroll-margin-top:130px}
 #protoScreen button:focus-visible,.proto-controls button:focus-visible{outline:3px solid #9a8aff;outline-offset:3px}
+
+/* Classroom-first product UX: preview first, advanced theory optional */
+.advanced-planning{margin-top:20px;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.advanced-planning>summary{cursor:pointer;padding:18px 20px;font-weight:700;font-size:13px;color:#34375e;list-style-position:inside}
+.advanced-planning[open]>summary{border-bottom:1px solid var(--line);background:#f8f7ff}
+.advanced-planning>.lab-layout{padding:18px}
+#productPrototypeStudio{margin-top:12px}
+.prototype-quickstart{margin-bottom:14px}
+@media(max-width:700px){.advanced-planning>.lab-layout{padding:10px}.prototype-quickstart{display:block}.prototype-quickstart span{display:block;margin-top:8px}}
