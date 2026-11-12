@@ -2,7 +2,14 @@
 /* Student reflection: saved per project and printed in the report. */
 (()=>{
 const key=id=>'prototypeos.reflection.'+id;
+const sample={
+ learned:'ตัวอย่างสำหรับนักศึกษา (ยังไม่ใช่ผลทดลองจริง): การออกแบบยาหม่องสำหรับพนักงานออฟฟิศควรให้ความสำคัญกับกลิ่นอ่อน ตลับขนาดพกพาที่เปิด–ปิดสะดวก และเนื้อบาล์มที่เกลี่ยง่าย โดยต้องรับฟังความคิดเห็นของกลุ่มเป้าหมายก่อนสรุปผล',
+ improve:'ตัวอย่างประเด็นที่ควรปรับปรุง: ทดสอบระดับความเข้มของกลิ่นให้เหมาะกับพื้นที่ทำงานร่วมกัน ปรับฝาตลับให้จับถนัดมือ ลดความเหนียวของเนื้อบาล์ม และตรวจสอบฉลาก ส่วนผสม และความปลอดภัยก่อนการใช้จริง',
+ next:'แผนทดลองครั้งถัดไป (ยังไม่ได้ดำเนินการ): เชิญพนักงานออฟฟิศ 5 คน ทดลองเปิด–ปิดตลับและประเมินกลิ่นกับความสะดวกในการใช้งาน เป้าหมายคืออย่างน้อย 4 ใน 5 คนเปิดตลับได้ภายใน 15 วินาที และได้คะแนนความสะดวกเฉลี่ยอย่างน้อย 4/5 โดยบันทึกผลและหลักฐานจริง'
+};
 const get=id=>{try{return JSON.parse(localStorage.getItem(key(id))||'{}')}catch{return {}}};
+function forProject(p){const saved=p?get(p.id):{};if(p?.type==='product'&&p.name==='ยาหม่อง pain relief'){const merged={...saved};for(const [k,v] of Object.entries(sample))if(!merged[k])merged[k]=v;return merged;}return saved;}
+window.prototypeReflection={get,forProject};
 window.prototypeReflection={get};
 function install(){
  const product=document.getElementById('product');if(!product)return;
@@ -13,7 +20,7 @@ function install(){
  const fields=[['reflectionLearned','learned'],['reflectionImprove','improve'],['reflectionNext','next']];
  const activeProject=()=>typeof active==='function'?active('product'):null;
  let current=null;
- function load(){const p=activeProject();current=p?.id||null;const data=current?get(current):{};fields.forEach(([id,k])=>document.getElementById(id).value=data[k]||'');document.getElementById('reflectionStatus').textContent=current?'พร้อมบันทึก':'เลือกโครงการก่อน';}
+ function load(){const p=activeProject();current=p?.id||null;const data=p?forProject(p):{};fields.forEach(([id,k])=>document.getElementById(id).value=data[k]||'');document.getElementById('reflectionStatus').textContent=current?'พร้อมบันทึก':'เลือกโครงการก่อน';}
  function save(){const p=activeProject();if(!p)return;const data={};fields.forEach(([id,k])=>data[k]=document.getElementById(id).value.trim());try{localStorage.setItem(key(p.id),JSON.stringify(data));document.getElementById('reflectionStatus').textContent='✓ บันทึกแล้ว';if(typeof toast==='function')toast('บันทึกผลสะท้อนคิดแล้ว')}catch{document.getElementById('reflectionStatus').textContent='บันทึกไม่สำเร็จ';}}
  document.getElementById('reflectionSave').onclick=save;
  document.getElementById('reflectionCancel').onclick=load;
