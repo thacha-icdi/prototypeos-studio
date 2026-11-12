@@ -146,3 +146,8 @@ body.presentation-open{overflow:hidden}
 @media(max-width:750px){.physical-preview-grid{grid-template-columns:1fr}.physical-object{min-height:300px}}
 
 .reflection-panel{padding:22px;margin:20px 0}.reflection-panel label{display:block;font-weight:700;font-size:12px;margin:16px 0;color:#29324f}.reflection-panel textarea{display:block;width:100%;box-sizing:border-box;margin-top:8px;padding:12px;border:1px solid #dbe0ef;border-radius:10px;min-height:85px;font:inherit;font-weight:400;resize:vertical}.reflection-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.reflection-actions button{padding:11px 16px;border-radius:9px}.reflection-actions span{font-size:12px;color:#606b83}
+
+/* Clear RICE prioritization guidance */
+.rice-guide{margin:14px 0 18px;padding:16px 18px;background:#f6f4ff;border:1px solid #ded9ff;border-radius:12px;color:#293150;font-size:12px;line-height:1.75}
+.rice-guide>strong{font-size:13px;color:#5845cb}.rice-guide p{margin:7px 0}.rice-guide .rice-warning{padding:9px 12px;background:#fff8e9;border-left:3px solid #dfaa46;border-radius:5px;color:#77511d}
+#product .datatable{min-width:680px}#product .datatable th{white-space:normal;line-height:1.5;vertical-align:bottom;font-size:10px}#product .datatable td input{min-width:0}
