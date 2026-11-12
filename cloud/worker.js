@@ -1,52 +1,59 @@
-// Cloudflare Worker scaffold (not activated on GitHub Pages).
-// Requires an external OIDC issuer with JWT verification and Neon HTTP driver.
-// Do NOT deploy until authentication and origin settings are configured.
-// Install: npm install @neondatabase/serverless jose
+// PrototypeOS anonymous, non-deleting Cloud API.
+// Production deployment requires Neon DATABASE_URL and Cloudflare Turnstile secrets.
+// A private edit key belongs to each project; never publish it or send it to the public list.
 import { neon } from '@neondatabase/serverless';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
-
-const json=(data,status=200,headers={})=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...headers}});
-export default {
- async fetch(request,env){
-  const origin=request.headers.get('Origin');
-  const cors=origin===env.ALLOWED_ORIGIN?{'Access-Control-Allow-Origin':origin,'Vary':'Origin'}:{};
-  if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...cors,'Access-Control-Allow-Headers':'Authorization, Content-Type','Access-Control-Allow-Methods':'GET, PUT, OPTIONS'}});
-  if(origin&&origin!==env.ALLOWED_ORIGIN)return json({error:'Origin not allowed'},403);
-  const path=new URL(request.url).pathname;
-  if(path==='/health')return json({status:'ready-for-configuration'},200,cors);
-  if(!env.DATABASE_URL||!env.OIDC_ISSUER||!env.OIDC_AUDIENCE)return json({error:'Cloud backend not configured'},503,cors);
-  const match=/^Bearer (.+)$/.exec(request.headers.get('Authorization')||'');
-  if(!match)return json({error:'Sign in required'},401,cors);
-  let subject;
-  try {
-   const issuer=env.OIDC_ISSUER.replace(/\/$/,'');
-   const {payload}=await jwtVerify(match[1],createRemoteJWKSet(new URL(issuer+'/.well-known/jwks.json')),{issuer,audience:env.OIDC_AUDIENCE});
-   subject=payload.sub;
-   if(!subject)throw Error('Missing subject');
-  }catch{return json({error:'Invalid session'},401,cors)}
-  const sql=neon(env.DATABASE_URL);
-  try{
-   const users=await sql`INSERT INTO app_users(external_subject) VALUES(${subject}) ON CONFLICT(external_subject) DO UPDATE SET external_subject=EXCLUDED.external_subject RETURNING id`;
-   const owner=users[0].id;
-   if(path==='/api/prototypes'&&request.method==='GET'){
-    const rows=await sql`SELECT client_id,kind,title,payload,revision,updated_at FROM prototypes WHERE owner_id=${owner} ORDER BY updated_at DESC LIMIT 500`;
-    return json({projects:rows},200,cors);
-   }
-   if(path==='/api/prototypes'&&request.method==='PUT'){
-    const size=Number(request.headers.get('content-length')||0);
-    if(size>250000)return json({error:'Payload too large'},413,cors);
-    const raw=await request.text();
-    if(raw.length>250000)return json({error:'Payload too large'},413,cors);
-    let data;try{data=JSON.parse(raw)}catch{return json({error:'Invalid JSON'},400,cors)}
-    if(!data||typeof data.client_id!=='string'||data.client_id.length>150||!['product','process','business'].includes(data.kind)||typeof data.title!=='string'||data.title.length>200||!data.payload||Array.isArray(data.payload)||typeof data.payload!=='object'||!Number.isSafeInteger(data.expected_revision)||data.expected_revision<0)return json({error:'Invalid project data'},400,cors);
-    if(data.expected_revision===0){
-     const inserted=await sql`INSERT INTO prototypes(owner_id,client_id,kind,title,payload) VALUES(${owner},${data.client_id},${data.kind},${data.title},${JSON.stringify(data.payload)}::jsonb) ON CONFLICT(owner_id,client_id) DO NOTHING RETURNING revision`;
-     return inserted.length?json({revision:1},201,cors):json({error:'Project already exists; refresh before saving'},409,cors);
-    }
-    const updated=await sql`UPDATE prototypes SET title=${data.title},kind=${data.kind},payload=${JSON.stringify(data.payload)}::jsonb,revision=revision+1,updated_at=now() WHERE owner_id=${owner} AND client_id=${data.client_id} AND revision=${data.expected_revision} RETURNING revision`;
-    return updated.length?json({revision:updated[0].revision},200,cors):json({error:'Version conflict; reload before saving'},409,cors);
-   }
-   return json({error:'Not found'},404,cors);
-  }catch{return json({error:'Database operation failed'},500,cors)}
+const respond=(body,status=200,headers={})=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json;charset=utf-8','cache-control':'no-store',...headers}});
+const hash=async key=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key)))).map(b=>b.toString(16).padStart(2,'0')).join('');
+const validKey=k=>typeof k==='string'&&/^[a-f0-9]{64}$/.test(k);
+async function turnstile(token,secret,ip){
+ if(!token||!secret)return false;
+ const form=new FormData();form.append('secret',secret);form.append('response',token);if(ip)form.append('remoteip',ip);
+ try{const r=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body:form});const data=await r.json();return data.success===true}catch{return false}
+}
+export default {async fetch(req,env){
+ const origin=req.headers.get('Origin');
+ const allowed=origin===env.ALLOWED_ORIGIN;
+ const cors=allowed?{'Access-Control-Allow-Origin':origin,'Vary':'Origin'}:{};
+ if(req.method==='OPTIONS')return allowed?new Response(null,{status:204,headers:{...cors,'Access-Control-Allow-Headers':'Content-Type, X-Prototype-Key','Access-Control-Allow-Methods':'GET,POST,PUT,OPTIONS'}}):respond({error:'Forbidden origin'},403);
+ if(origin&&!allowed)return respond({error:'Forbidden origin'},403);
+ const path=new URL(req.url).pathname;
+ if(path==='/health')return respond({status:'configuration-required',cloudSaveEnabled:!!(env.DATABASE_URL&&env.TURNSTILE_SECRET)},200,cors);
+ if(!env.DATABASE_URL)return respond({error:'Database not configured'},503,cors);
+ const sql=neon(env.DATABASE_URL);
+ try{
+  if(path==='/api/prototypes'&&req.method==='GET'){
+   const rows=await sql`SELECT client_id,kind,title,revision,updated_at FROM prototypes ORDER BY updated_at DESC LIMIT 2000`;
+   return respond({projects:rows,count:rows.length,limit:2000},200,cors);
+  }
+  const detail=path.match(/^\/api\/prototypes\/([a-zA-Z0-9_-]{1,150})$/);
+  if(detail&&req.method==='GET'){
+   const rows=await sql`SELECT client_id,kind,title,payload,revision,updated_at FROM prototypes WHERE client_id=${detail[1]} LIMIT 1`;
+   return rows.length?respond({project:rows[0]},200,cors):respond({error:'Not found'},404,cors);
+  }
+  if(path==='/api/prototypes'&&req.method==='POST'){
+   if(!env.TURNSTILE_SECRET)return respond({error:'Abuse protection not configured'},503,cors);
+   const raw=await req.text();if(raw.length>250000)return respond({error:'Too large'},413,cors);
+   let d;try{d=JSON.parse(raw)}catch{return respond({error:'Invalid JSON'},400,cors)}
+   if(!d||!validKey(d.edit_key)||typeof d.client_id!=='string'||!/^[a-zA-Z0-9_-]{1,150}$/.test(d.client_id)||!['product','process','business'].includes(d.kind)||typeof d.title!=='string'||!d.title.trim()||d.title.length>100||!d.payload||typeof d.payload!=='object'||Array.isArray(d.payload))return respond({error:'Invalid project'},400,cors);
+   if(!await turnstile(d.turnstile_token,env.TURNSTILE_SECRET,req.headers.get('CF-Connecting-IP')))return respond({error:'Human verification required'},403,cors);
+   const h=await hash(d.edit_key);
+   // Shared anonymous owner is only a database foreign-key placeholder, not a user login.
+   const owner=await sql`INSERT INTO app_users(external_subject,role) VALUES('prototypeos-anonymous','student') ON CONFLICT(external_subject) DO UPDATE SET external_subject=EXCLUDED.external_subject RETURNING id`;
+   const result=await sql`INSERT INTO prototypes(owner_id,client_id,kind,title,payload,edit_key_hash) VALUES(${owner[0].id},${d.client_id},${d.kind},${d.title},${JSON.stringify(d.payload)}::jsonb,${h}) ON CONFLICT(client_id) DO NOTHING RETURNING revision`;
+   return result.length?respond({revision:1},201,cors):respond({error:'Project ID already exists'},409,cors);
+  }
+  if(detail&&req.method==='PUT'){
+   const key=req.headers.get('X-Prototype-Key');if(!validKey(key))return respond({error:'Project edit key required'},403,cors);
+   const raw=await req.text();if(raw.length>250000)return respond({error:'Too large'},413,cors);
+   let d;try{d=JSON.parse(raw)}catch{return respond({error:'Invalid JSON'},400,cors)}
+   if(!d||typeof d.title!=='string'||!d.title.trim()||d.title.length>100||!['product','process','business'].includes(d.kind)||!d.payload||typeof d.payload!=='object'||Array.isArray(d.payload)||!Number.isSafeInteger(d.expected_revision)||d.expected_revision<1)return respond({error:'Invalid update'},400,cors);
+   const h=await hash(key);
+   const rows=await sql`UPDATE prototypes SET title=${d.title},kind=${d.kind},payload=${JSON.stringify(d.payload)}::jsonb,revision=revision+1,updated_at=now() WHERE client_id=${detail[1]} AND edit_key_hash=${h} AND revision=${d.expected_revision} RETURNING revision`;
+   return rows.length?respond({revision:rows[0].revision},200,cors):respond({error:'Invalid key or version conflict'},409,cors);
+  }
+  return respond({error:'Not found'},404,cors);
+ }catch(e){
+  if(e?.code==='P2000'||String(e?.message||'').includes('capacity reached'))return respond({error:'2000 project capacity reached'},409,cors);
+  return respond({error:'Database request failed'},500,cors);
  }
-};
+}};
